@@ -5,6 +5,38 @@ Created on Tue Jun 27 15:07:58 2017
 @author: Ruurd
 """
 
+#Import libraries
+import os
+
+#Def functions:
+def convertNed2Xyz( name, in_file, out_file):
+    "convert ned to xyz)"
+    #open input file
+    in_file_obj = open(in_file+name,"r")
+    #create output file
+    name=name[:-3]+'xyz'
+    out_file_obj = open(out_file+name, "w")
+    
+    for line in in_file_obj:
+        ned_sounding = line.split(in_delimiter)
+        xyz_sounding = ned_sounding[E]+out_delimiter+ned_sounding[N]+out_delimiter+"-"+ned_sounding[D]
+        out_file_obj.write(xyz_sounding)
+    
+    #close files
+    in_file_obj.close()
+    out_file_obj.close()
+    return
+
+#Def functions:
+def find_ned( in_path ):
+    "This finds the .NED files in the directory"
+    files = os.listdir( in_path )
+    ned = []
+    for file in files:
+        if file.endswith(".NED"):
+            ned.append(file)
+    return ned
+
 # set input file name and directory
 in_file_ext = ".NED"
 in_filename = "D3470_grid05_geo"   # "D3470_grid05_geo" for testing, "D4073_grid05_geo" for large file testing 
@@ -21,37 +53,18 @@ out_delimiter =";"
 # set input file delimiter and columns
 # values used here represent the .NED format used internally by the NHS 
 in_delimiter = " "
-N=0 # first column is North in digital degrees
-E=1 # second column is Easting in digital degrees
+N=0 # first column is North in decimal degrees
+E=1 # second column is Easting in decimal degrees
 D=2 # third and last column is depth, in meters and centimeters
 
-soundings_number = 0
+#=============
+#Start Program
+#=============
 
-#open input file
-in_file_obj = open(in_file,"r")
+#Search directory for NED files
+nedfiles = find_ned( in_path )
 
-#open output file
-out_file_obj = open(out_file, "w")
-
-print("Converting from NED to xyz...")
-print("writing to file:", out_filename + out_file_ext)
-print("in location:", out_path)
-
-# read each line
-for line in in_file_obj:
-    soundings_number = soundings_number +1
-    sounding = line.split(in_delimiter)
-
-    # convert string into floats
-    x=float(sounding[E])
-    y=float(sounding[N])
-    z=float(sounding[D])
-        
-    out_text = sounding[E]+out_delimiter+sounding[N]+out_delimiter+"-"+sounding[D]
-    out_file_obj.write(out_text)
-    
-# close input file 
-in_file_obj.close()
-
-# close output file 
-out_file_obj.close()
+#For each NED file in directory, convert to xyz file.
+for nedfile in nedfiles:
+    convertNed2Xyz (nedfile, in_path, out_path)
+    print (nedfile + "converted to xyz")
