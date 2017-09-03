@@ -8,13 +8,11 @@ Created on Tue Jun 27 15:07:58 2017
 from timeit import default_timer as timer
 import os
 
-# set efficiency statistics to True or False for slow or fast execution
-effstat = True
-print("Efficiency statistics is", effstat)
+#Set efficiency statistics to True or False for slow or fast execution
+efficiency_statistics = True
 
 #Def functions:
 def convertNed2Xyz( name, in_file, out_file):
-    "convert ned to xyz)"
     #open input file
     in_file_obj = open(in_file+name,"r")
     #create output file
@@ -41,11 +39,27 @@ def find_ned( in_path ):
             ned.append(file)
     return ned
 
+#Def functions:
+def effstat(in_file_obj, efficiency_statistics):
+    print("Efficiency statistics is", efficiency_statistics)
+    soundings_number = 0    
+    for line in in_file_obj:
+        soundings_number = soundings_number + 1
+    end = timer()
+    used_time = end - start
+    
+#Show efficiency statistcs
+    sounding_per_second = round(soundings_number/used_time)
+    print("Total number of depth soundings:", soundings_number)
+    print("Total time: {0:.2f}".format(used_time), "seconds")
+    print("Soundings per second:", sounding_per_second)
+
 # set input file name and directory
 in_file_ext = ".NED"
 in_filename = "D3470_grid05_geo"   # "D3470_grid05_geo" for testing, "D4073_grid05_geo" for large file testing 
 in_path = "C:\\Users\\ruurd\\Documents\\IB1\\ITGS\\Python_Project_data\\data\\in\\"
 in_file = in_path + in_filename + in_file_ext
+in_file_obj = open(in_file,"r")
 
 # set output file name and directory
 out_file_ext = ".xyz"
@@ -60,38 +74,27 @@ in_delimiter = " "
 N=0 # first column is North in decimal degrees
 E=1 # second column is Easting in decimal degrees
 D=2 # third and last column is depth, in meters and centimeters
-soundings_number = 0
-
-# start timer
-if effstat:
-    start = timer()
 
 #=============
 #Start Program
 #=============
 
+# start timer
+if efficiency_statistics:
+    start = timer()
+    
 #Search directory for NED files
 nedfiles = find_ned( in_path )
 
 #For each NED file in directory, convert to xyz file.
 for nedfile in nedfiles:
     convertNed2Xyz (nedfile, in_path, out_path)
-    print (nedfile + "converted to xyz")
+    print (nedfile + " converted to xyz")
 
+#Show efficiency statistics:
+if efficiency_statistics:
+    effstat(in_file_obj, efficiency_statistics)
+    
 #=============
 #End Program
-#=============  
-
-# stop timer and calculate statistics
-if effstat:
-    end = timer()
-    for line in in_file:
-        soundings_number = soundings_number +1
-    used_time = end - start
-    sounding_per_second = round(soundings_number/used_time)
-    print("Efficiency statistics:")
-    print("Total number of depth soundings:", soundings_number)
-    print("Total time: {0:.2f}".format(used_time), "seconds")
-    print("Soundings per second:", sounding_per_second)
-    
-    
+#=============
